@@ -1,5 +1,6 @@
 from django.db import models
-from django.utils import timezone
+# from django.utils import timezone
+import datetime
 
 
 class Post(models.Model):
@@ -7,12 +8,12 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     text = models.TextField()
     created_date = models.DateTimeField(
-        default=timezone.now)
+        default=datetime.datetime.now)
     published_date = models.DateTimeField(
         blank=True, null=True)
 
     def publish(self):
-        self.published_date = timezone.now()
+        self.published_date = datetime.datetime.now()
         self.save()
 
     def approved_comments(self):
@@ -26,7 +27,7 @@ class Comment(models.Model):
     post = models.ForeignKey('blog.Post', related_name='comments')
     auth = models.CharField(max_length=200)
     text = models.TextField()
-    create_time = models.DateTimeField(default=timezone.now)
+    create_time = models.DateTimeField(default=datetime.datetime.now)
     approved_comment = models.BooleanField(default=False)
 
     def approved(self):
