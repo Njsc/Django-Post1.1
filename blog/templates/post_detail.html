@@ -6,15 +6,38 @@
         <div class="date">
             {% if post.published_date %}
                 {{ post.published_date }}
-             {% else %}
+            {% else %}
                 <a class="btn btn-default" href="{% url 'blog.views.post_publish' pk=post.pk %}">Publish</a>
             {% endif %}
         </div>
         {% if user.is_authenticated %}
-        <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
-        <a class="btn btn-default" href="{% url 'post_remove' pk=post.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+            <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span
+                    class="glyphicon glyphicon-pencil"></span></a>
+            <a class="btn btn-default" href="{% url 'post_remove' pk=post.pk %}"><span
+                    class="glyphicon glyphicon-remove"></span></a>
         {% endif %}
         <h1>{{ post.title }}</h1>
         <p>{{ post.text|linebreaks }}</p>
     </div>
+    <hr>
+    <a class="btn btn-default" href="{% url 'add_post_comment' pk=post.pk %}">Add Comment</a>
+    {% for comment in post.comments.all %}
+        {% if user.is_authenticated or comment.approved_comment %}
+
+            <div class="comment">
+                <div class="date">{{ comment.create_time }}
+                {% if not comment.approved_comment %}
+                    <a class="btn btn-default" href="{% url 'remove_post_comment' pk=comment.pk %}"><span
+                            class="glyphicon glyphicon-remove"></span></a>
+                    <a class="btn btn-default" href="{% url 'approved_post_comment' pk=comment.pk %}"><span
+                            class="glyphicon glyphicon-ok"></span></a>
+                {% endif %}
+                </div>
+                <strong>{{ comment.auth }}</strong>
+                <p>{{ comment.text|linebreaks }}</p>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p> No Comment here :)</p>
+    {% endfor %}
 {% endblock %}

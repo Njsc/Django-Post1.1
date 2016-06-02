@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post
-from .forms import PostForm
+from .models import Post, Comment
+from .forms import PostForm, CommentForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
@@ -31,6 +31,20 @@ def post_new(request):
 
         form = PostForm()
     return render(request, 'post_new.html', {'form': form})
+
+
+def add_post_comment(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
+            return redirect('blog.views.post_detail', pk=post.pk)
+    else:
+        form = CommentForm()
+    return render(request, 'add_post_comment.html', {'form': form})
 
 
 @login_required
@@ -68,3 +82,18 @@ def post_remove(request, pk):
     post = get_object_or_404(Post, pk=pk)
     post.delete()
     return redirect('blog.views.post_list')
+
+
+@login_required
+def remove_post_comment(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    post_pk = comment.post.pk
+    comment.delete()
+    return redirect('blog.views.post_detail', pk=post_pk)
+
+
+@login_required
+def approved_post_comment(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    comment.approved()
+    return redirect('blog.views.post_detail', pk=comment.post.pk)
